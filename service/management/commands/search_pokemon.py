@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 
 
 class Command(BaseCommand):
-    help = 'Closes the specified poll for voting'
+    help = 'Encuentra e imprime la información de un Pokémon según su ID'
 
     def add_arguments(self, parser):
         parser.add_argument('id', type=int, help='ID del pokémon a buscar')
