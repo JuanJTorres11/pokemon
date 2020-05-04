@@ -31,6 +31,7 @@ def add_pokemon(name: str) -> Pokemon:
             ps.save()
         return p
 
+
 def get_pokemon(name:str) -> dict:
     """
     Busca el pokémon dado su nombre en la base de datos y crea un diccionario con su información básica.
@@ -70,7 +71,6 @@ def get_pokemon(name:str) -> dict:
         return pokemon
     except ObjectDoesNotExist:
         return None
-
 
 
 def evolution_chain(id_chain: int) -> PokemonEvolution:
