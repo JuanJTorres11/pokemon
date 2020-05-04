@@ -18,7 +18,10 @@ def pokemon_info(name: str) -> Pokemon:
         return Pokemon.objects.get(name=name)
 
     except ObjectDoesNotExist:
+
         r = requests.get("https://pokeapi.co/api/v2/pokemon/%s" % name)
+        if not r:
+            raise RuntimeError("No existe el nombre de pokémon ingresado")
         response = r.json()
         p = Pokemon(name=response["name"], id=response["id"], weight=response["weight"], height=response["height"])
         p.save()
@@ -43,6 +46,8 @@ def evolution_chain(id_chain: int) -> PokemonEvolution:
     ec = PokemonEvolution.objects.filter(evolution_chain=id_chain)
     if len(ec) == 0:
         r = requests.get("https://pokeapi.co/api/v2/evolution-chain/%d" % id_chain)
+        if not r:
+            raise RuntimeError("No existe la cadena de evolución de pokémon ingresada")
         response = r.json()
         names = [{"name": response["chain"]["species"]["name"], "pos": 1}]
         evolutions = response["chain"]["evolves_to"]

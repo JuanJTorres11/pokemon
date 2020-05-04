@@ -13,5 +13,5 @@ class Command(BaseCommand):
         try:
             self.stdout.write("La información de la cadena de evolución con id %s es" % kwargs['id'])
             pprint.pprint(logic.evolution_chain(kwargs['id']))
-        except:
-            raise CommandError('Hubo un error')
+        except RuntimeError as err:
+            raise CommandError('Hubo un error al buscar la cadena de evolución: %s' % err)
