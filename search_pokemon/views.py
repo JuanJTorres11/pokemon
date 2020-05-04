@@ -8,11 +8,8 @@ def about(request):
 
 
 def info_pokemon(request, name):
-    p = logic.pokemon_info(name)
-    pokemon = {
-        "name": p.name,
-        "id": p.id,
-        "weight": p.weight,
-        "height": p.height
-    }
-    return JsonResponse(pokemon)
+    pokemon = logic.get_pokemon(name)
+    if pokemon:
+        return JsonResponse(pokemon)
+    else:
+        return JsonResponse({"Respuesta": "Pokémon no encontrado"})

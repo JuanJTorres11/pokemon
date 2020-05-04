@@ -3,7 +3,7 @@ from ..models import *
 from django.core.exceptions import ObjectDoesNotExist
 
 
-def pokemon_info(name: str) -> Pokemon:
+def add_pokemon(name: str) -> Pokemon:
     """
     Utiliza el servicio pokemon de la API pokeapi para obtener datos básicos del pokémon dato su nombre.
 
@@ -30,6 +30,47 @@ def pokemon_info(name: str) -> Pokemon:
             ps = PokemonStat(pokemon_name=p, stat=s, base=stat["base_stat"])
             ps.save()
         return p
+
+def get_pokemon(name:str) -> dict:
+    """
+    Busca el pokémon dado su nombre en la base de datos y crea un diccionario con su información básica.
+
+    Paramétros:
+        name(str): Nombre del pokémon a buscar
+
+    Retorna:
+       Diccionario con la información básica del pokémon y sus evoluciones.
+    """
+    try:
+        p = Pokemon.objects.get(name=name)
+        pokemon = {
+            "name": p.name,
+            "id": p.id,
+            "weight": p.weight,
+            "height": p.height,
+            "stats": [],
+            "evolutions": []
+        }
+        stats = PokemonStat.objects.filter(pokemon_name=p)
+        for stat in stats:
+            pokemon["stats"].append({"stat": stat.stat_id, "base": stat.base})
+
+        evolutionChain = PokemonEvolution.objects.get(pokemon=p)
+        evolutionId = evolutionChain.evolution_chain
+        position = evolutionChain.position
+        chain = PokemonEvolution.objects.filter(evolution_chain=evolutionId)
+        for evolution in chain:
+            if evolution.position > position:
+                pokemon["evolutions"].append({"name": evolution.pokemon.name, "id": evolution.pokemon.id,
+                                              "evolution_type": "Evolution"})
+            elif evolution.position < position:
+                pokemon["evolutions"].append({"name": evolution.pokemon.name, "id": evolution.pokemon.id,
+                                              "evolution_type": "Preevolution"})
+
+        return pokemon
+    except ObjectDoesNotExist:
+        return None
+
 
 
 def evolution_chain(id_chain: int) -> PokemonEvolution:
@@ -58,7 +99,7 @@ def evolution_chain(id_chain: int) -> PokemonEvolution:
         e = EvolutionChain(id=id_chain)
         e.save()
         for name in names:
-            p = pokemon_info(name["name"])
+            p = add_pokemon(name["name"])
             pe = PokemonEvolution(pokemon=p, evolution_chain=e, position=name["pos"])
             pe.save()
         return PokemonEvolution.objects.filter(evolution_chain=id_chain)
